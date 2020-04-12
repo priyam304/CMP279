@@ -19,6 +19,9 @@ int main(int argc, char const *argv[])
     char buffer[1024] = {0}; 
     char *hello = "Hello from server"; 
     uid_t uid = 65534;  
+
+    char *myenv [] = {NULL };
+    char str_fd[15];
     // Creating socket file descriptor 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
     { 
@@ -60,51 +63,13 @@ int main(int argc, char const *argv[])
     //fork
     if(fork()==0)
     {   
-
-        //child process
-        struct passwd *pw = getpwuid(uid);
-       
-       //creating home directory for nobody user
-        if(mkdir("/nonexistent")<0){
-            perror("mkdir");
-            exit(EXIT_FAILURE); 
-        }
-
-        //chroot to /nonexistent
-        if(chroot(pw->pw_dir)<0){
-             perror("chroot");
-             exit(EXIT_FAILURE); 
-        }else{
-           
-           //dropping privileges to nobody user
-           if(setuid(uid)<0){
-            printf("Error in set uid\n");
-           }else{
-            printf("user id changed\n");
-
-            //checking if privileges are dropped
-            if(mkdir("/temp1")<0){
-                printf("Privileges are dropped\n");
-            }else{
-                printf("this user still has privileges\n");
-            }
-            printf("Child process.\n");
-
-            //actual read and write process
-            valread = read( new_socket , buffer, 1024); 
-            printf("%s\n",buffer ); 
-            send(new_socket , hello , strlen(hello) , 0 ); 
-            printf("Hello message sent\n"); 
-            }
-        }
-     
+        //child process 
+        sprintf(str_fd,"%d",new_socket);
+        execle("child","child",str_fd,NULL, myenv);
+        
     }else{
         //parent process waits till child exists
         wait(NULL);
-
-        //removing home directory of nobody user
-        rmdir("/nonexistent");
-        printf("Parent Process.\n");
     }
     return 0; 
 
