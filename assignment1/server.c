@@ -74,37 +74,31 @@ int main(int argc, char const *argv[])
         if(chroot(pw->pw_dir)<0){
              perror("chroot");
              exit(EXIT_FAILURE); 
-        }else{
+        }
            
            //dropping privileges to nobody user
-           if(setuid(uid)<0){
-            printf("Error in set uid\n");
-           }else{
-            printf("user id changed\n");
+        if(setuid(uid)<0){
+            perror("Error in set uid\n");
+            exit(EXIT_FAILURE); 
+           }
 
+           
             //checking if privileges are dropped
-            if(mkdir("/temp1")<0){
-                printf("Privileges are dropped\n");
-            }else{
-                printf("this user still has privileges\n");
-            }
-            printf("Child process.\n");
+        
 
-            //actual read and write process
-            valread = read( new_socket , buffer, 1024); 
-            printf("%s\n",buffer ); 
-            send(new_socket , hello , strlen(hello) , 0 ); 
-            printf("Hello message sent\n"); 
-            }
-        }
-     
+        //actual read and write process
+        valread = read( new_socket , buffer, 1024); 
+        printf("%s\n",buffer ); 
+        send(new_socket , hello , strlen(hello) , 0 ); 
+        printf("Hello message sent\n"); 
+
     }else{
         //parent process waits till child exists
         wait(NULL);
 
         //removing home directory of nobody user
         rmdir("/nonexistent");
-        printf("Parent Process.\n");
+        
     }
     return 0; 
 
