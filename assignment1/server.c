@@ -81,9 +81,6 @@ int main(int argc, char const *argv[])
             perror("Error in set uid\n");
             exit(EXIT_FAILURE); 
            }
-
-           
-            //checking if privileges are dropped
         
 
         //actual read and write process
